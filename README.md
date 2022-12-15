@@ -35,3 +35,9 @@ locations of the volume mounts. You can modify these options to fit your needs.
 ### License
 
 This project is licensed under the MIT License
+
+### Authors
+
+The Script used is based
+on [analyze_snowflake_logs.py](https://gist.github.com/MariusHerget/8e061217ad0fb5709ac498e082903bd7)
+by [MariusHerget](https://gist.github.com/MariusHerget)

@@ -1,20 +1,20 @@
-# This Script uses the following dependancies
+# This Script uses the following dependencies
 # pip install nums-from-string
 # pip install datetime
 #
 # To Run this script type:
-# python analyze_snowflake_logs.py <Log File Name>
+# python main.py <Log File Name>
 #
 # The default <Log File Name> is ./docker_snowflake.log
 #
 # Example:
-# python analyze_snowflake_logs.py snow.log
+# python main.py snow.log
 #
 # Written By Allstreamer_
 # Licenced Under MIT
 #
 # Enhanced by MariusHerget
-# Further enhanced by mrdrache333
+# Further enhanced and modified by mrdrache333
 
 import sys
 from datetime import datetime, timedelta
@@ -71,12 +71,11 @@ def readFile():
     return lines_all
 
 
-# Catch phrase for lines who do not start with a timestamp
+# Catchphrase for lines who do not start with a timestamp
 def catchTimestampException(rowSubString, timestampFormat):
     try:
         return datetime.strptime(rowSubString, timestampFormat)
-    except Exception as e:
-        # print(e)
+    except Exception:
         return datetime.strptime("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S")
 
 
@@ -95,14 +94,16 @@ def get_byte_count(log_lines):
     for row in log_lines:
         symbols = row.split(" ")
 
-        if symbols[2] == "B":
-            byte_count += int(symbols[1])
-        elif symbols[2] == "KB":
-            byte_count += int(symbols[1]) * 1024
-        elif symbols[2] == "MB":
-            byte_count += int(symbols[1]) * 1024 * 1024
-        elif symbols[2] == "GB":
-            byte_count += int(symbols[1]) * 1024 * 1024 * 1024
+        # Use a dictionary to map units to their byte conversion values
+        units = {
+            "B": 1,
+            "KB": 1024,
+            "MB": 1024 * 1024,
+            "GB": 1024 * 1024 * 1024
+        }
+
+        # Use the dictionary to get the byte conversion value for the current unit
+        byte_count += int(symbols[1]) * units[symbols[2]]
     return byte_count
 
 
@@ -110,12 +111,11 @@ def get_byte_count(log_lines):
 # Extract number of connections, uploaded traffic in GB and download traffic in GB
 def getDataFromLines(lines):
     # Filter out important lines (Traffic information)
-    lines = [row.strip() for row in lines]
-    lines = filter(lambda row: "In the" in row, lines)
+    lines = [row.strip() for row in lines if "In the" in row]
     lines = [row.split(",", 1)[1] for row in lines]
 
     # Filter out all traffic log lines who did not had any connection
-    lines = list(filter(lambda row: not nums_from_string.get_nums(row)[0] == 0, lines))
+    lines = [row for row in lines if nums_from_string.get_nums(row)[0] != 0]
 
     # Extract number of connections as a sum
     connections = sum([nums_from_string.get_nums(row)[0] for row in lines])
