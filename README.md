@@ -1,5 +1,6 @@
 Snowflake + Prometheus
 ----------------------
+[![GitHub Docker Registry](https://github.com/MrDrache333/snowflake-prometheus-exporter/actions/workflows/build.yml/badge.svg)](https://github.com/MrDrache333/snowflake-prometheus-exporter/actions/workflows/build.yml)
 
 This Docker Compose file sets up two containers: a [Snowflake](https://www.torproject.org/projects/snowflake.html.en)
 proxy and a [Prometheus](https://prometheus.io/) server. It also includes a third container, a Prometheus exporter for
