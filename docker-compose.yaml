@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  snowflake-proxy:
+    network_mode: host
+    image: thetorproject/snowflake-proxy:latest
+    container_name: snowflake-proxy
+    restart: unless-stopped
+    volumes:
+      - .:/shared:rw
+    command: [ "-verbose", "-log", "/shared/docker_snowflake.log" ]
+  prometheus-exporter:
+    image: mrdrache333/snowflake-prometheus-exporter
+    volumes:
+      - ./docker_snowflake.log:/docker_snowflake.log:ro
+    restart: unless-stopped
+    container_name: snowflake-prometheus-exporter
+    ports:
+      - "8080:8080"
+    networks:
+      - prometheus
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - prometheus
+
+networks:
+  prometheus:
+    driver: bridge
