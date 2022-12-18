@@ -72,8 +72,8 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 10,
+        "h": 24,
+        "w": 3,
         "x": 0,
         "y": 0
       },
@@ -120,53 +120,45 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 0,
           "mappings": [],
+          "min": 0,
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 40
-              },
-              {
                 "color": "red",
-                "value": 75
-              },
-              {
-                "color": "dark-red",
-                "value": 85
+                "value": 80
               }
             ]
           },
-          "unit": "percent"
+          "unit": "decgbytes"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 24,
         "w": 3,
-        "x": 10,
+        "x": 3,
         "y": 0
       },
-      "id": 10,
+      "id": 4,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "auto",
+        "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
         },
-        "textMode": "value"
+        "textMode": "auto"
       },
       "pluginVersion": "9.3.2",
       "targets": [
@@ -176,13 +168,13 @@
             "uid": "SUpEVGqnk"
           },
           "editorMode": "builder",
-          "expr": "avg(dockerstats_cpu_usage_ratio{name=\"snowflake-proxy\"})",
-          "legendFormat": "__auto",
+          "expr": "download_gb",
+          "legendFormat": "{{time}}",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "CPU",
+      "title": "Downloaded Data",
       "type": "stat"
     },
     {
@@ -190,6 +182,208 @@
         "type": "prometheus",
         "uid": "SUpEVGqnk"
       },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decgbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 3,
+        "x": 6,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "expr": "upload_gb",
+          "legendFormat": "{{time}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Uploaded Data",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "SUpEVGqnk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "decgbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 3,
+        "x": 9,
+        "y": 0
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.3.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "expr": "upload_gb",
+          "legendFormat": "{{time}}",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "expr": "download_gb",
+          "hide": false,
+          "legendFormat": "{{time}}",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Traffic",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "All Time Total",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "All time"
+              ],
+              "reducer": "sum"
+            },
+            "replaceFields": false
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Last 24h Total",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "Last 24h"
+              ],
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "Last Week Total",
+            "mode": "reduceRow",
+            "reduce": {
+              "include": [
+                "Last Week"
+              ],
+              "reducer": "sum"
+            }
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "All Time Total",
+                "Last 24h Total",
+                "Last Week Total"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "SUpEVGqnk"
+      },
+      "description": "",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -259,23 +453,23 @@
               }
             ]
           },
-          "unit": "short"
+          "unit": "decgbytes"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 11,
-        "x": 13,
+        "w": 12,
+        "x": 12,
         "y": 0
       },
-      "id": 6,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
         },
         "tooltip": {
           "mode": "single",
@@ -290,14 +484,291 @@
             "uid": "SUpEVGqnk"
           },
           "editorMode": "builder",
-          "expr": "served_people{time=\"Last 24h\"}",
+          "exemplar": false,
+          "expr": "download_gb{time=\"All time\"}",
+          "instant": false,
           "interval": "1",
-          "legendFormat": "{{time}}",
+          "legendFormat": "Downloaded",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "expr": "upload_gb{time=\"All time\"}",
+          "hide": false,
+          "interval": "1",
+          "legendFormat": "Uploaded",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Served People (Last 24H)",
+      "title": "Traffic (All Time)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "SUpEVGqnk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 1
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 10
+              },
+              {
+                "color": "green",
+                "value": 20
+              },
+              {
+                "color": "dark-green",
+                "value": 30
+              },
+              {
+                "color": "dark-purple",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "decgbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "download_gb{time=\"Last 24h\"}",
+          "instant": false,
+          "interval": "1",
+          "legendFormat": "Downloaded",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "expr": "upload_gb{time=\"Last 24h\"}",
+          "hide": false,
+          "interval": "1",
+          "legendFormat": "Uploaded",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Traffic (Last 24h)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "SUpEVGqnk"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 100,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "stepAfter",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-red",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 1
+              },
+              {
+                "color": "#6ED0E0",
+                "value": 10
+              },
+              {
+                "color": "green",
+                "value": 20
+              },
+              {
+                "color": "dark-green",
+                "value": 30
+              },
+              {
+                "color": "dark-purple",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "decgbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "download_gb{time=\"Last Week\"}",
+          "instant": false,
+          "interval": "1",
+          "legendFormat": "Downloaded",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "SUpEVGqnk"
+          },
+          "editorMode": "builder",
+          "expr": "upload_gb{time=\"Last Week\"}",
+          "hide": false,
+          "interval": "1",
+          "legendFormat": "Uploaded",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Traffic (Last Week)",
       "type": "timeseries"
     },
     {
@@ -310,45 +781,53 @@
           "color": {
             "mode": "thresholds"
           },
+          "decimals": 0,
           "mappings": [],
-          "min": 0,
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
                 "color": "green",
                 "value": null
               },
               {
+                "color": "yellow",
+                "value": 40
+              },
+              {
                 "color": "red",
-                "value": 80
+                "value": 75
+              },
+              {
+                "color": "dark-red",
+                "value": 85
               }
             ]
           },
-          "unit": "decgbytes"
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 10,
+        "w": 3,
         "x": 0,
-        "y": 8
+        "y": 24
       },
-      "id": 4,
+      "id": 10,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
-        "justifyMode": "center",
+        "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "mean"
           ],
           "fields": "",
           "values": false
         },
-        "textMode": "auto"
+        "textMode": "value"
       },
       "pluginVersion": "9.3.2",
       "targets": [
@@ -358,13 +837,13 @@
             "uid": "SUpEVGqnk"
           },
           "editorMode": "builder",
-          "expr": "download_gb",
-          "legendFormat": "{{time}}",
+          "expr": "avg(dockerstats_cpu_usage_ratio{name=\"snowflake-proxy\"})",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Downloaded Data",
+      "title": "CPU",
       "type": "stat"
     },
     {
@@ -407,8 +886,8 @@
       "gridPos": {
         "h": 8,
         "w": 3,
-        "x": 10,
-        "y": 8
+        "x": 3,
+        "y": 24
       },
       "id": 11,
       "options": {
@@ -441,298 +920,6 @@
       ],
       "title": "RAM",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "SUpEVGqnk"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-red",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 1
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 10
-              },
-              {
-                "color": "green",
-                "value": 20
-              },
-              {
-                "color": "dark-green",
-                "value": 30
-              },
-              {
-                "color": "dark-purple",
-                "value": 40
-              }
-            ]
-          },
-          "unit": "decgbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 11,
-        "x": 13,
-        "y": 8
-      },
-      "id": 7,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "SUpEVGqnk"
-          },
-          "editorMode": "builder",
-          "expr": "download_gb{time=\"Last 24h\"}",
-          "interval": "1",
-          "legendFormat": "{{time}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Downloaded Data (Last 24H)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "SUpEVGqnk"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "decgbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 10,
-        "x": 0,
-        "y": 16
-      },
-      "id": 5,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "center",
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "textMode": "auto"
-      },
-      "pluginVersion": "9.3.2",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "SUpEVGqnk"
-          },
-          "editorMode": "builder",
-          "expr": "upload_gb",
-          "legendFormat": "{{time}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Uploaded Data",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "SUpEVGqnk"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 100,
-            "gradientMode": "opacity",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "min": 0,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-red",
-                "value": null
-              },
-              {
-                "color": "#EAB839",
-                "value": 1
-              },
-              {
-                "color": "#6ED0E0",
-                "value": 10
-              },
-              {
-                "color": "green",
-                "value": 20
-              },
-              {
-                "color": "dark-green",
-                "value": 30
-              },
-              {
-                "color": "dark-purple",
-                "value": 40
-              }
-            ]
-          },
-          "unit": "decgbytes"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 14,
-        "x": 10,
-        "y": 16
-      },
-      "id": 8,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "9.3.1",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "SUpEVGqnk"
-          },
-          "editorMode": "builder",
-          "expr": "upload_gb{time=\"Last 24h\"}",
-          "interval": "1",
-          "legendFormat": "{{time}}",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "Uploaded Data (Last 24H)",
-      "type": "timeseries"
     }
   ],
   "refresh": "30m",
@@ -750,6 +937,6 @@
   "timezone": "",
   "title": "Snowflake Proxy",
   "uid": "fO8q_25Vk",
-  "version": 6,
+  "version": 9,
   "weekStart": ""
 }
