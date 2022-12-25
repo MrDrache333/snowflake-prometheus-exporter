@@ -9,7 +9,7 @@ services:
       - .:/shared:rw
     command: [ "-verbose", "-log", "/shared/docker_snowflake.log" ]
   prometheus-exporter:
-    image: mrdrache333/snowflake-prometheus-exporter
+    image: ghcr.io/mrdrache333/snowflake-prometheus-exporter:master
     volumes:
       - ./docker_snowflake.log:/docker_snowflake.log:ro
     restart: unless-stopped
