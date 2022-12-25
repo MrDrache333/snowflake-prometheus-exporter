@@ -54,7 +54,9 @@ the image.
 The `arm64` tag refers to a specific version of the Docker image that has been built for the ARM64 architecture. This
 version of the image is optimized for use on devices with ARM64 processors, such as the Raspberry Pi.
 
-### Visualise using Grafana
+### Visualize using Grafana
+
+![](grafana-sample-dashboard.png)
 
 To import a sample Grafana dashboard, follow these steps:
 
