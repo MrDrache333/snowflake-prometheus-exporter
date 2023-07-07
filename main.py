@@ -17,11 +17,12 @@
 # Further enhanced and modified by mrdrache333
 
 import sys
+import re
 from datetime import datetime, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-import nums_from_string
-
+def nums_from_string(string):
+    return [int(num) for num in re.findall(r"\d+", string)]
 
 class TextHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -115,10 +116,10 @@ def getDataFromLines(lines):
     lines = [row.split(",", 1)[1] for row in lines]
 
     # Filter out all traffic log lines who did not had any connection
-    lines = [row for row in lines if nums_from_string.get_nums(row)[0] != 0]
+    lines = [row for row in lines if nums_from_string(row)[0] != 0]
 
     # Extract number of connections as a sum
-    connections = sum([nums_from_string.get_nums(row)[0] for row in lines])
+    connections = sum([nums_from_string(row)[0] for row in lines])
 
     # Extract upload and download data
     lines = [row.split("Relayed")[1] for row in lines]
