@@ -13,7 +13,27 @@ Overall, the Tor project helps make the Internet a safer and more private place 
 
 This exporter is based on a Python script that serves an HTTP server. When it receives a GET request with the path /metrics, it reads a log file, filters the log lines based on time windows (e.g. last 24 hours), and calculates statistics (e.g. number of connections, total upload and download traffic) from the log lines. It then formats the statistics as text in the Prometheus metric format and sends them back to the client in the HTTP response. The log file and the time windows for filtering the log lines are configurable.
 
-## Installation
+## Add Metrics to Already Installed Snowflake Server
+
+> **Note**: If you don't have snowflake already running on the system, this "install" method is not for you. Look at the next section for instructions.
+
+Install Prometheus Node Exporter in your system. On debian it's as follows:
+
+```bash
+sudo apt install prometheus-node-exporter
+```
+
+Then run the following script periodically at least once per hour:
+
+```bash
+sudo journalctl -o cat -u snowflake-proxy > /tmp/snowflake-logs.txt
+python3 main.py --no-serve /tmp/snowflake-logs.txt  | sudo tee /var/lib/prometheus/node-exporter/snowflake.prom
+```
+
+All metrics should be available on port `9100`, including the snowflake ones.
+
+
+## Installation (Snowflake + exporter)
 
 This Docker Compose file sets up two containers: a [Snowflake](https://www.torproject.org/projects/snowflake.html.en)
 proxy and a [Prometheus](https://prometheus.io/) server. It also includes a third container, a Prometheus exporter for
@@ -54,7 +74,7 @@ the image.
 The `arm64` tag refers to a specific version of the Docker image that has been built for the ARM64 architecture. This
 version of the image is optimized for use on devices with ARM64 processors, such as the Raspberry Pi.
 
-### Visualize using Grafana
+## Visualize using Grafana
 
 ![](grafana-sample-dashboard.png)
 
@@ -73,11 +93,11 @@ To import a sample Grafana dashboard, follow these steps:
 You should now see the imported dashboard listed in the "Dashboards" section of the left sidebar. You can click on the
 dashboard to view it.
 
-### License
+## License
 
 This project is licensed under the MIT License
 
-### Authors
+## Authors
 
 The Script used is based
 on [analyze_snowflake_logs.py](https://gist.github.com/MariusHerget/8e061217ad0fb5709ac498e082903bd7)
