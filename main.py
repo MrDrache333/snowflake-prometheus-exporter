@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # This Script uses the following dependencies
 # pip install nums-from-string
 # pip install datetime
@@ -15,16 +16,24 @@
 #
 # Enhanced by MariusHerget
 # Further enhanced and modified by mrdrache333
+# Further enhanced by francisco-core
 
+import argparse
 import sys
 import re
 from datetime import datetime, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+# Format of your timestamps in the beginning of the log
+# e.g. "2022/01/01 16:50:30 <LOG ENTRY>" => "%Y/%m/%d %H:%M:%S"
+TIMESTAMP_FORMAT = "%Y/%m/%d %H:%M:%S"
+
 def nums_from_string(string):
     return [int(num) for num in re.findall(r"\d+", string)]
 
 class TextHandler(BaseHTTPRequestHandler):
+    logfile_path = None
+
     def do_GET(self):
 
         if self.path != "/metrics":
@@ -40,31 +49,37 @@ class TextHandler(BaseHTTPRequestHandler):
         # End the headers
         self.end_headers()
 
-        # Read file
-        lines_all = readFile()
-
-        # Get the statistics for various time windows
-        # e.g. all time  => getDataFromLines(lines_all, 24)
-        # e.g. last 24h  => getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24))
-        # e.g. last Week => getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24 * 7))
-        stats = {
-            'All time': getDataFromLines(lines_all),
-            'Last 24h': getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24)),
-            'Last Week': getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24 * 7)),
-        }
-
-        # Print all the results in the Prometheus metric format
-        for time in stats:
-            stat = stats[time]
-            # Write the text message to the response body
-            self.wfile.write(
-                f"served_people{{time=\"{time}\"}} {stat['connections']}\n".encode() +
-                f"upload_gb{{time=\"{time}\"}} {round(stat['upload_gb'], 4)}\n".encode() +
-                f"download_gb{{time=\"{time}\"}} {round(stat['download_gb'], 4)}\n".encode()
-            )
+        # Return the metrics
+        print_stats(
+            self.logfile_path,
+            lambda x: self.wfile.write(x.encode())  # encode response
+        )
 
 
-def readFile():
+def print_stats(logfile_path: str, printer_func):
+    # Read file
+    lines_all = readFile(logfile_path)
+
+    # Get the statistics for various time windows
+    # e.g. all time  => getDataFromLines(lines_all, 24)
+    # e.g. last 24h  => getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24))
+    # e.g. last Week => getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24 * 7))
+    stats = {
+        'All time': getDataFromLines(lines_all),
+        'Last 24h': getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24)),
+        'Last Week': getDataFromLines(filterLinesBasedOnTimeDelta(lines_all, 24 * 7)),
+    }
+
+    # Print all the results in the Prometheus metric format
+    for time in stats:
+        stat = stats[time]
+        printer_func(
+            f"served_people{{time=\"{time}\"}} {stat['connections']}\n" +
+            f"upload_gb{{time=\"{time}\"}} {round(stat['upload_gb'], 4)}\n" +
+            f"download_gb{{time=\"{time}\"}} {round(stat['download_gb'], 4)}\n"
+        )
+
+def readFile(logfile_path: str):
     # Read in log file as lines
     lines_all = []
     with open(logfile_path, "r") as file:
@@ -83,9 +98,9 @@ def catchTimestampException(rowSubString, timestampFormat):
 # Filter the log lines based on a time delta in hours
 def filterLinesBasedOnTimeDelta(log_lines, hours):
     now = datetime.now()
-    length_timestamp_format = len(datetime.strftime(now, timestamp_format))
+    length_timestamp_format = len(datetime.strftime(now, TIMESTAMP_FORMAT))
     return filter(lambda row: now - timedelta(hours=hours) <= catchTimestampException(row[0:length_timestamp_format],
-                                                                                      timestamp_format) <= now,
+                                                                                      TIMESTAMP_FORMAT) <= now,
                   log_lines)
 
 
@@ -134,13 +149,31 @@ def getDataFromLines(lines):
     return {'connections': connections, 'upload_gb': upload_gb, 'download_gb': download_gb}
 
 
-# Format of your timestamps in the beginning of the log
-# e.g. "2022/01/01 16:50:30 <LOG ENTRY>" => "%Y/%m/%d %H:%M:%S"
-timestamp_format = "%Y/%m/%d %H:%M:%S"
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--serve",
+        dest="serve",
+        action="store_true",
+        help="Start http server directly on port 8080"
+    )
+    parser.add_argument(
+        "--no-serve",
+        dest="serve",
+        action="store_false",
+        help="Simply parse the input file"
+    )
+    parser.set_defaults(serve=True)
 
-# Log file path from arguments (default: ./docker_snowflake.log)
-logfile_path = sys.argv[1] if len(sys.argv) > 1 else "./docker_snowflake.log"
+    # Log file path from arguments (default: ./docker_snowflake.log)
+    parser.add_argument("logfile_path", default="./docker_snowflake.log")
+    args = parser.parse_args()
 
-# Start the HTTP server on port 8080
-httpd = HTTPServer(("", 8080), TextHandler)
-httpd.serve_forever()
+    if args.serve:
+        # Start the HTTP server on port 8080
+        TextHandler.logfile_path = args.logfile_path
+        httpd = HTTPServer(("", 8080), TextHandler)
+        httpd.serve_forever()
+    else:
+        # Simply parse the file and print the resulting metrics
+        print_stats(args.logfile_path, sys.stdout.write)
